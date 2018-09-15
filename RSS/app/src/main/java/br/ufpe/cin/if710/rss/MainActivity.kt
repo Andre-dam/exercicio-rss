@@ -1,29 +1,23 @@
 package br.ufpe.cin.if710.rss
 
 import android.app.Activity
-import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
-import br.ufpe.cin.if710.rss.ParserRSS.parserSimples
+import android.widget.Toast
+import br.ufpe.cin.if710.rss.ParserRSS.parse
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.text.FieldPosition
 
 class MainActivity : Activity() {
 
     //ao fazer envio da resolucao, use este link no seu codigo!
-    private val RSS_FEED = "http://leopoldomt.com/if1001/g1brasil.xml"
-
+    //private val RSS_FEED = "http://leopoldomt.com/if1001/g1brasil.xml"
     //OUTROS LINKS PARA TESTAR...
     //http://rss.cnn.com/rss/edition.rss
     //http://pox.globo.com/rss/g1/brasil/
@@ -48,18 +42,24 @@ class MainActivity : Activity() {
     private inner class DownloadRSS:AsyncTask<String,Void,String> () {
         override fun doInBackground(vararg p0: String?): String {
             try {
-                //Esse código dá pau, por fazer operação de rede na thread principal...
+                val RSS_FEED = getString(R.string.rssfeed)
                 val feedXML = getRssFeed(RSS_FEED)
                 return feedXML
             } catch (e: IOException) {
                 e.printStackTrace()
+
+                val text = e.message
+                val duration = Toast.LENGTH_LONG
+                val toast = Toast.makeText(this@MainActivity, text, duration)
+                toast.show()
+
                 return "Error"
             }
         }
 
         override fun onPostExecute(result: String) {
             super.onPostExecute(result)
-            val RSS_list = parserSimples(result)
+            val RSS_list = parse(result)
             val conteudoRSS = findViewById<RecyclerView>(R.id.conteudoRSS)
             conteudoRSS.layoutManager = LinearLayoutManager(this@MainActivity)
             conteudoRSS.adapter = RssAdapter(RSS_list,this@MainActivity)
