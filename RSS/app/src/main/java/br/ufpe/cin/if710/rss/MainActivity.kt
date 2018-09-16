@@ -36,16 +36,17 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         val download = DownloadRSS()
-        download.execute()
+        download.execute() //Chama o asyncTask
     }
-
+    //Uma asyncTask foi criada para executar as requisições do RSS
     private inner class DownloadRSS:AsyncTask<String,Void,String> () {
         override fun doInBackground(vararg p0: String?): String {
             try {
-                val RSS_FEED = getString(R.string.rssfeed)
+                val RSS_FEED = getString(R.string.rssfeed) //A string com o endereço esta armazenada no xml string
                 val feedXML = getRssFeed(RSS_FEED)
                 return feedXML
             } catch (e: IOException) {
+                //Caso não consiga executar a requisição invoca um TOAST na tela
                 e.printStackTrace()
 
                 val text = e.message
@@ -56,13 +57,13 @@ class MainActivity : Activity() {
                 return "Error"
             }
         }
-
+        //Apos realizar a requisição onPostExecute eh invocada
         override fun onPostExecute(result: String) {
             super.onPostExecute(result)
-            val RSS_list = parse(result)
+            val RSS_list = parse(result) //Realiza o parse da requisição que retorna uma lista com os valores
             val conteudoRSS = findViewById<RecyclerView>(R.id.conteudoRSS)
-            conteudoRSS.layoutManager = LinearLayoutManager(this@MainActivity)
-            conteudoRSS.adapter = RssAdapter(RSS_list,this@MainActivity)
+            conteudoRSS.layoutManager = LinearLayoutManager(this@MainActivity) //A RecyclerView precisa de um Manager
+            conteudoRSS.adapter = RssAdapter(RSS_list,this@MainActivity) //Passa a lista para o adapter e o contexto
         }
     }
 
